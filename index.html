@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,544 +7,474 @@
   <meta name="description" content="Aprende a construir un portafolio de acciones con método — en 5 días." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Design system: suytex.css importa las fuentes (Space Grotesk + Inter);
+       theme-light.css es la capa semantica light y exige data-theme="light". -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Suytex/suytex-design@v1.2.0/suytex.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Suytex/suytex-design@v1.2.0/theme-light.css">
+
   <style>
-    /* ─── TOKENS ─────────────────────────────────────────────── */
-    :root {
-      --bg:         #0a0a0a;
-      --bg-surface: #111111;
-      --bg-card:    #161616;
-      --border:     #222222;
-      --border-hi:  #333333;
-      --gold:       #d4a855;
-      --gold-dim:   #9a7a3a;
-      --text:       #f0ede8;
-      --text-muted: #888880;
-      --text-dim:   #555550;
-      --green:      #22c55e;
-      --red:        #ef4444;
-      --radius:     14px;
-      --radius-sm:  8px;
-      --max-w:      1080px;
-    }
+    /* ═══════════════════════════════════════════════════════════
+       Solo lo que el design system NO cubre: layout, grids,
+       acordeon FAQ, columnas si/no y los botones. Color, tipografia,
+       radius y espaciado salen de los tokens --su-*.
+       ═══════════════════════════════════════════════════════════ */
 
     /* ─── RESET ──────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      font-size: 16px;
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
-    }
     img { max-width: 100%; display: block; }
     a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
 
-    /* ─── LOADING ────────────────────────────────────────────── */
-    #app { min-height: 100vh; }
+    /* ─── LAYOUT ─────────────────────────────────────────────── */
+    .container { max-width: var(--su-maxw); margin: 0 auto; padding: 0 24px; }
+    .section { padding: var(--su-section-y) 0; }
+    /* Alternancia por orden de aparicion: si se reordenan las secciones en
+       content.txt, el ritmo bg / bg-alt se mantiene solo. Sin divisorias. */
+    #app .section:nth-of-type(even) { background: var(--su-bg-alt); }
+
+    /* ─── TIPOGRAFIA ─────────────────────────────────────────── */
+    /* Escala de seccion propia. theme-light.css fija font-size dentro de
+       [data-theme="light"] .su-title (especificidad 0,2,0), asi que aplicar
+       .su-title a los 13 h2 los dejaria a tamano hero. */
+    [data-theme="light"] #app .section h2 {
+      font-family: var(--su-font-display);
+      font-weight: 600;
+      font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+      letter-spacing: -0.02em;
+      line-height: 1.12;
+      color: var(--su-fg);
+      margin-bottom: 20px;
+    }
+    #app .section h3 {
+      font-family: var(--su-font-display);
+      font-weight: 600;
+      font-size: 1.25rem;
+      letter-spacing: -0.01em;
+      color: var(--su-fg);
+    }
+    #app .section p {
+      font-family: var(--su-font-body);
+      font-weight: 400;
+      font-size: 1.0625rem;
+      line-height: 1.6;
+      color: var(--su-fg-muted);
+      max-width: 68ch;
+      margin-bottom: 16px;
+    }
+    #app .section li {
+      font-family: var(--su-font-body);
+      font-weight: 400;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--su-fg-muted);
+    }
+    #app .section strong { color: var(--su-fg); font-weight: 500; }
+    #app .section ul { margin-top: 40px; }
+
+    /* Entradilla atenuada: el h2 hace de pie y el <strong> siguiente carga
+       la declaracion (problem, philosophy, pricing). */
+    [data-theme="light"] #app .section--problem h2,
+    [data-theme="light"] #app .section--philosophy h2,
+    [data-theme="light"] #app .section--pricing h2 {
+      font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--su-fg-muted);
+    }
+    #app .section--problem > .container > p:first-of-type strong,
+    #app .section--philosophy > .container > p:first-of-type strong {
+      display: block;
+      font-family: var(--su-font-display);
+      font-weight: 600;
+      font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+      letter-spacing: -0.02em;
+      line-height: 1.12;
+      color: var(--su-fg);
+      margin-bottom: 24px;
+    }
+
+    /* ─── ICONOS ─────────────────────────────────────────────── */
+    /* .su-icon (suytex.css) aporta 24x24 + stroke; el <svg> lo inyecta
+       enhanceIcons(), no el auto-render de icons.js — esta landing pinta su
+       contenido despues de DOMContentLoaded y ese auto-render es de una
+       sola pasada. La clase es obligatoria: sin ella el <use> hereda
+       fill:black / stroke:none y el icono sale como mancha negra. */
+    [data-theme="light"] .su-icon {
+      display: inline-flex;
+      flex: none;
+      vertical-align: -0.25em;
+    }
+
+    /* ─── HERO ───────────────────────────────────────────────── */
+    #app .section--hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: calc(var(--su-section-y) + 24px) 0;
+    }
+    #app .section--hero .container { width: 100%; }
+    #app .section--hero h1 {
+      font-family: var(--su-font-body);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--su-fg-muted);
+      margin-bottom: 24px;
+    }
+    [data-theme="light"] #app .section--hero h2 {
+      font-size: clamp(2.125rem, 5vw, 3.5rem);
+      max-width: 24ch;
+      margin-bottom: 24px;
+    }
+    #app .section--hero > .container > p:first-of-type {
+      font-size: clamp(1.0625rem, 1.6vw, 1.3125rem);
+      max-width: 46ch;
+      margin-bottom: 40px;
+    }
+    #app .section--hero > .container > p:last-of-type { margin-bottom: 0; }
+
+    /* ─── CARDS ──────────────────────────────────────────────── */
+    /* .su-card no es alcanzable desde markdown (marked genera <li> pelados),
+       asi que se replican sus valores del tema light con los mismos tokens. */
+    #app .section--pain li,
+    #app .section--transformation li,
+    #app .section--method li,
+    #app .section--format li,
+    #app .section--outcomes li,
+    #app .section--includes li,
+    #app .for-who-col,
+    #app .pricing-card,
+    #app .faq-item {
+      background: var(--su-surface);
+      border: 1px solid var(--su-line-subtle);
+      border-radius: var(--su-radius-md);
+      box-shadow: none;
+    }
+
+    /* Cards apiladas: icono arriba, etiqueta, cuerpo. */
+    #app .section--pain ul,
+    #app .section--transformation ul,
+    #app .section--method ul,
+    #app .section--format ul {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+    #app .section--pain li,
+    #app .section--transformation li,
+    #app .section--method li,
+    #app .section--format li { padding: 28px; }
+    #app .section--pain li .su-icon,
+    #app .section--transformation li .su-icon,
+    #app .section--method li .su-icon,
+    #app .section--format li .su-icon {
+      display: block;
+      margin-bottom: 16px;
+    }
+    #app .section--pain li strong,
+    #app .section--transformation li strong,
+    #app .section--method li strong,
+    #app .section--format li strong {
+      display: block;
+      font-size: 1.0625rem;
+      margin-bottom: 6px;
+    }
+
+    /* Filas con sangria francesa: el icono va absoluto para que el texto
+       envuelva alineado y no se parta en items de flex. */
+    #app .section--outcomes ul,
+    #app .section--includes ul {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    #app .section--outcomes li,
+    #app .section--includes li {
+      position: relative;
+      padding: 20px 22px 20px 56px;
+    }
+    #app .section--outcomes li .su-icon,
+    #app .section--includes li .su-icon {
+      position: absolute;
+      left: 22px;
+      top: 21px;
+    }
+    #app .section--outcomes li strong,
+    #app .section--includes li strong { display: block; margin-bottom: 4px; }
+
+    /* ─── METHOD: subtitulo ──────────────────────────────────── */
+    #app .section--method > .container > p:first-of-type {
+      font-family: var(--su-font-body);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--su-fg-muted);
+      margin-bottom: 8px;
+    }
+
+    /* ─── FOR-WHO ────────────────────────────────────────────── */
+    #app .for-who-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 40px;
+    }
+    #app .for-who-col { padding: 32px; }
+    #app .for-who-col h3 {
+      position: relative;
+      padding-left: 34px;
+      margin-bottom: 20px;
+    }
+    #app .for-who-col ul {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 0;
+    }
+    #app .for-who-col li { position: relative; padding-left: 34px; }
+    #app .for-who-col h3 .su-icon,
+    #app .for-who-col li .su-icon { position: absolute; left: 0; top: 2px; }
+    /* La columna NO se diferencia por glifo (x-circle) y por un neutro del
+       propio sistema — no se introduce ningun color fuera del DS. */
+    [data-theme="light"] #app .for-who-no .su-icon { stroke: var(--su-fg-subtle); }
+    #app .section--for-who > .container > p { margin-top: 32px; }
+
+    /* ─── PRICING ────────────────────────────────────────────── */
+    #app .pricing-card {
+      max-width: 560px;
+      padding: 40px;
+      margin-top: 40px;
+      border-color: var(--su-line);
+      border-radius: var(--su-radius-lg);
+    }
+    #app .price-main strong,
+    #app .price-seats strong {
+      display: block;
+      font-family: var(--su-font-display);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--su-fg);
+    }
+    #app .price-main strong { font-size: clamp(2.25rem, 5vw, 3rem); line-height: 1.05; }
+    #app .price-seats strong { font-size: 1.375rem; line-height: 1.2; }
+    #app .price-subtitle,
+    #app .price-note { margin-bottom: 28px; }
+    #app .price-closing {
+      border-top: 1px solid var(--su-line-subtle);
+      padding-top: 24px;
+      margin-bottom: 0;
+      font-size: 0.9375rem;
+    }
+
+    /* ─── FAQ ────────────────────────────────────────────────── */
+    #app .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 760px;
+      margin-top: 40px;
+    }
+    #app .faq-item { overflow: hidden; }
+    #app .faq-q {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      cursor: pointer;
+      user-select: none;
+      font-family: var(--su-font-body);
+      font-weight: 500;
+      font-size: 1.0625rem;
+      color: var(--su-fg);
+    }
+    #app .faq-q::after {
+      content: '+';
+      font-size: 1.5rem;
+      font-weight: 300;
+      line-height: 1;
+      color: var(--su-accent);
+      flex-shrink: 0;
+      transition: transform .2s;
+    }
+    #app .faq-item.open .faq-q::after { transform: rotate(45deg); }
+    /* 0fr → 1fr dimensiona la respuesta sola: sin max-height magica que
+       recorte cuando el tema light agranda el cuerpo de texto. */
+    #app .faq-a {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows .3s ease;
+    }
+    #app .faq-item.open .faq-a { grid-template-rows: 1fr; }
+    /* El padding va aparte del estado cerrado: en un grid item el padding no
+       se comprime, y con 0fr dejaria una franja fantasma bajo la pregunta. */
+    #app .faq-a-inner {
+      overflow: hidden;
+      padding: 0 24px;
+      transition: padding-bottom .3s ease;
+      font-family: var(--su-font-body);
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--su-fg-muted);
+    }
+    #app .faq-item.open .faq-a-inner { padding-bottom: 22px; }
+
+    /* ─── BOTONES ────────────────────────────────────────────── */
+    /* Receta de preview/light.html:28-47 del design system. Anadido propio:
+       gap, para el icono que el preview no contempla. */
+    #app .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      height: 48px;
+      padding: 0 28px;
+      font-family: var(--su-font-body);
+      font-weight: 500;
+      font-size: 15px;
+      border-radius: var(--su-radius-pill);
+      cursor: pointer;
+      border: 1px solid transparent;
+      text-decoration: none;
+    }
+    #app .btn-primary { background: var(--su-accent); color: var(--su-on-accent); }
+    #app .btn-primary:hover { background: var(--su-accent-hover); }
+    #app .btn-secondary {
+      background: transparent;
+      color: var(--su-accent);
+      border-color: var(--su-line);
+    }
+    #app .btn-secondary:hover { background: var(--su-accent-soft); }
+    /* Dentro de un pill relleno el icono sigue al texto, no al acento. */
+    [data-theme="light"] #app .btn-primary .su-icon { stroke: currentColor; }
+    /* enhanceCTA inserta el boton entre el cuerpo y el cierre en cursiva. */
+    #app .section--cta .btn { margin: 8px 0 36px; }
+
+    /* ─── FOOTER ─────────────────────────────────────────────── */
+    footer { background: var(--su-bg-alt); }
+    footer .container { padding-top: 32px; padding-bottom: 32px; }
+    footer span {
+      font-family: var(--su-font-body);
+      font-size: 13px;
+      color: var(--su-fg-subtle);
+    }
+
+    /* ─── ESTADOS: CARGA Y ERROR ─────────────────────────────── */
     .loading {
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      color: var(--text-muted);
-      font-size: 1rem;
-      letter-spacing: 0.1em;
+      font-family: var(--su-font-body);
+      font-size: 15px;
+      letter-spacing: 0.04em;
+      color: var(--su-fg-subtle);
     }
     .loading::after {
       content: '';
-      display: inline-block;
-      width: 6px; height: 6px;
-      background: var(--gold);
+      width: 6px;
+      height: 6px;
+      background: var(--su-accent);
       border-radius: 50%;
       margin-left: 10px;
       animation: pulse 1s infinite;
     }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.2} }
 
-    /* ─── LAYOUT HELPERS ─────────────────────────────────────── */
-    .section { padding: 6rem 1.5rem; }
-    .container { max-width: var(--max-w); margin: 0 auto; }
-
-    /* ─── TYPOGRAPHY (shared) ────────────────────────────────── */
-    h2 { font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 800; line-height: 1.15; }
-    h3 { font-size: 1.2rem; font-weight: 700; }
-    p  { color: var(--text-muted); line-height: 1.75; }
-    strong { color: var(--text); }
-    ul { list-style: none; }
-
-    /* ─── SECTION LABEL ──────────────────────────────────────── */
-    .section-label {
-      display: inline-block;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 1.25rem;
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       HERO
-    ════════════════════════════════════════════════════════════ */
-    .section--hero {
+    .error-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      padding: 5rem 1.5rem;
-      background:
-        radial-gradient(ellipse 70% 50% at 50% -10%, rgba(212,168,85,.12) 0%, transparent 60%),
-        var(--bg);
+      padding: 32px;
       text-align: center;
+      gap: 16px;
+      font-family: var(--su-font-body);
     }
-    .section--hero .container { width: 100%; }
-
-    .section--hero h1 {
-      font-size: clamp(0.75rem, 1.5vw, 0.9rem);
-      font-weight: 700;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 1.5rem;
+    .error-state p { max-width: 46ch; color: var(--su-fg-muted); line-height: 1.6; }
+    .error-state .error-title { color: var(--su-fg); font-weight: 500; font-size: 1.0625rem; }
+    .error-state code {
+      background: var(--su-bg-alt);
+      border: 1px solid var(--su-line-subtle);
+      border-radius: var(--su-radius-sm);
+      padding: 2px 6px;
+      font-size: .9em;
     }
-    .section--hero h2 {
-      font-size: clamp(2.2rem, 6vw, 4.25rem);
-      font-weight: 900;
-      line-height: 1.08;
-      color: var(--text);
-      max-width: 820px;
-      margin: 0 auto 1.5rem;
-    }
-    .section--hero h2 em {
-      font-style: normal;
-      color: var(--gold);
-    }
-    .section--hero p {
-      font-size: clamp(1rem, 2vw, 1.25rem);
-      color: var(--text-muted);
-      max-width: 540px;
-      margin: 0 auto 2.5rem;
-    }
-    .section--hero a {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      background: var(--gold);
-      color: #0a0a0a;
-      font-weight: 800;
-      font-size: 1.05rem;
-      padding: .9rem 2.2rem;
-      border-radius: 50px;
-      transition: background .2s, transform .15s;
-      letter-spacing: -.01em;
-    }
-    .section--hero a:hover {
-      background: #e8bc68;
-      transform: translateY(-2px);
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       PAIN
-    ════════════════════════════════════════════════════════════ */
-    .section--pain { background: var(--bg-surface); }
-    .section--pain h2 {
-      margin-bottom: 2.5rem;
-      text-align: center;
-    }
-    .section--pain ul {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.25rem;
-    }
-    .section--pain li {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.6rem;
-      transition: border-color .2s;
-    }
-    .section--pain li:hover { border-color: var(--border-hi); }
-    .section--pain li strong { display: block; color: var(--text); margin-bottom: .35rem; font-size: 1rem; }
-
-    /* ════════════════════════════════════════════════════════════
-       PROBLEM
-    ════════════════════════════════════════════════════════════ */
-    .section--problem {
-      text-align: center;
-      background:
-        radial-gradient(ellipse 60% 60% at 50% 50%, rgba(212,168,85,.06) 0%, transparent 70%),
-        var(--bg);
-    }
-    .section--problem h2 {
-      font-size: clamp(1.75rem, 4.5vw, 3rem);
-      color: var(--text-muted);
-      font-weight: 700;
-      margin-bottom: 1.25rem;
-    }
-    .section--problem p:first-of-type strong {
-      font-size: clamp(1.75rem, 4.5vw, 3rem);
-      color: var(--gold);
-      font-weight: 900;
-      display: block;
-      margin-bottom: 2rem;
-    }
-    .section--problem p {
-      max-width: 660px;
-      margin: 0 auto 1rem;
-      font-size: 1.1rem;
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       TRANSFORMATION
-    ════════════════════════════════════════════════════════════ */
-    .section--transformation { background: var(--bg-surface); }
-    .section--transformation h2 { margin-bottom: .75rem; }
-    .section--transformation > .container > p {
-      color: var(--text-muted);
-      margin-bottom: 2.25rem;
-    }
-    .section--transformation ul {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.25rem;
-    }
-    .section--transformation li {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-top: 3px solid var(--gold);
-      border-radius: var(--radius);
-      padding: 1.6rem;
-    }
-    .section--transformation li strong { font-size: 1.05rem; display: block; margin-bottom: .4rem; }
-
-    /* ════════════════════════════════════════════════════════════
-       OUTCOMES
-    ════════════════════════════════════════════════════════════ */
-    .section--outcomes {}
-    .section--outcomes h2 { margin-bottom: 2.25rem; }
-    .section--outcomes ul {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-      gap: 1rem;
-    }
-    .section--outcomes li {
-      display: flex;
-      gap: 1rem;
-      padding: 1.25rem 1.5rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-    }
-    .section--outcomes li::before {
-      content: '';
-      display: none;
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       METHOD
-    ════════════════════════════════════════════════════════════ */
-    .section--method { background: var(--bg-surface); }
-    .section--method h2 { margin-bottom: .5rem; }
-    .section--method > .container > p {
-      color: var(--gold-dim);
-      font-size: .8rem;
-      font-weight: 700;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      margin-bottom: 2.25rem;
-    }
-    .section--method ul {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.1rem;
-    }
-    .section--method li {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.4rem 1.5rem;
-      transition: border-color .2s, transform .2s;
-    }
-    .section--method li:hover {
-      border-color: var(--gold-dim);
-      transform: translateY(-3px);
-    }
-    .section--method li strong { display: block; color: var(--text); margin-bottom: .35rem; font-size: .95rem; }
-
-    /* ════════════════════════════════════════════════════════════
-       PHILOSOPHY
-    ════════════════════════════════════════════════════════════ */
-    .section--philosophy {
-      text-align: center;
-      background:
-        radial-gradient(ellipse 80% 80% at 50% 50%, rgba(212,168,85,.07) 0%, transparent 70%),
-        var(--bg);
-      padding: 7rem 1.5rem;
-    }
-    .section--philosophy h2 { color: var(--text-muted); font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: 1.5rem; }
-    .section--philosophy p:first-of-type strong {
-      display: block;
-      font-size: clamp(2rem, 5vw, 3.25rem);
-      font-weight: 900;
-      color: var(--gold);
-      margin-bottom: 1.5rem;
-      line-height: 1.1;
-    }
-    .section--philosophy p {
-      max-width: 600px;
-      margin: 0 auto;
-      font-size: 1.1rem;
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       FORMAT
-    ════════════════════════════════════════════════════════════ */
-    .section--format { background: var(--bg-surface); }
-    .section--format h2 { margin-bottom: 2.25rem; }
-    .section--format ul {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.25rem;
-    }
-    .section--format li {
-      padding: 1.5rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-    }
-    .section--format li strong { display: block; margin-bottom: .4rem; font-size: 1rem; }
-
-    /* ════════════════════════════════════════════════════════════
-       INCLUDES
-    ════════════════════════════════════════════════════════════ */
-    .section--includes {}
-    .section--includes h2 { margin-bottom: 2.25rem; }
-    .section--includes ul {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      gap: .85rem;
-    }
-    .section--includes li {
-      display: flex;
-      gap: .85rem;
-      align-items: flex-start;
-      padding: 1.1rem 1.25rem;
-      border-left: 3px solid var(--gold);
-      background: var(--bg-card);
-      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    }
-    .section--includes li strong { display: block; margin-bottom: .2rem; color: var(--text); }
-
-    /* ════════════════════════════════════════════════════════════
-       FOR-WHO
-    ════════════════════════════════════════════════════════════ */
-    .section--for-who { background: var(--bg-surface); }
-    .section--for-who h2 { text-align: center; margin-bottom: 2.5rem; }
-    .for-who-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-    @media (max-width: 640px) { .for-who-grid { grid-template-columns: 1fr; } }
-    .for-who-col {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 2rem;
-    }
-    .for-who-yes { border-top: 3px solid var(--green); }
-    .for-who-no  { border-top: 3px solid var(--red); }
-    .for-who-col h3 { font-size: 1.1rem; margin-bottom: 1.25rem; }
-    .for-who-yes h3 { color: var(--green); }
-    .for-who-no  h3 { color: var(--red); }
-    .for-who-col ul { display: flex; flex-direction: column; gap: .65rem; }
-    .for-who-col li { color: var(--text-muted); font-size: .95rem; }
-    .section--for-who > .container > p {
-      text-align: center;
-      margin-top: 2rem;
-      color: var(--text-dim);
-      font-style: italic;
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       PRICING
-    ════════════════════════════════════════════════════════════ */
-    .section--pricing {
-      background:
-        radial-gradient(ellipse 60% 60% at 50% 0%, rgba(212,168,85,.1) 0%, transparent 60%),
-        var(--bg);
-      text-align: center;
-    }
-    .section--pricing h2 { color: var(--text-muted); margin-bottom: 2rem; }
-    .pricing-card {
-      display: inline-block;
-      background: var(--bg-card);
-      border: 1px solid var(--gold-dim);
-      border-radius: 20px;
-      padding: 3rem 3.5rem;
-      max-width: 520px;
-      width: 100%;
-      text-align: center;
-    }
-    .price-main strong {
-      display: block;
-      font-size: clamp(2.5rem, 6vw, 3.75rem);
-      font-weight: 900;
-      color: var(--gold);
-      line-height: 1;
-      margin-bottom: .25rem;
-    }
-    .price-main { margin-bottom: 1rem; }
-    .price-subtitle { color: var(--text-muted); margin-bottom: 1.75rem; font-size: .95rem; }
-    .price-seats strong {
-      display: block;
-      font-size: 1.75rem;
-      font-weight: 800;
-      color: var(--text);
-    }
-    .price-seats { margin-bottom: .5rem; }
-    .price-note { color: var(--text-muted); font-size: .9rem; margin-bottom: 2rem; }
-    .price-closing {
-      font-size: .95rem;
-      color: var(--text-muted);
-      border-top: 1px solid var(--border);
-      padding-top: 1.5rem;
-      line-height: 1.65;
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       FAQ
-    ════════════════════════════════════════════════════════════ */
-    .section--faq { background: var(--bg-surface); }
-    .section--faq h2 { margin-bottom: 2.25rem; }
-    .faq-list { display: flex; flex-direction: column; gap: .75rem; max-width: 720px; }
-    .faq-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      transition: border-color .2s;
-    }
-    .faq-item:hover { border-color: var(--border-hi); }
-    .faq-q {
-      padding: 1.1rem 1.5rem;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-      font-weight: 600;
-      color: var(--text);
-      user-select: none;
-    }
-    .faq-q::after {
-      content: '+';
-      font-size: 1.4rem;
-      font-weight: 300;
-      color: var(--gold);
-      flex-shrink: 0;
-      transition: transform .2s;
-    }
-    .faq-item.open .faq-q::after { transform: rotate(45deg); }
-    .faq-a {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height .3s ease;
-    }
-    .faq-item.open .faq-a { max-height: 200px; }
-    .faq-a-inner {
-      padding: 0 1.5rem 1.25rem;
-      color: var(--text-muted);
-      font-size: .95rem;
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       CTA
-    ════════════════════════════════════════════════════════════ */
-    .section--cta {
-      background:
-        radial-gradient(ellipse 80% 80% at 50% 50%, rgba(212,168,85,.1) 0%, transparent 60%),
-        var(--bg-surface);
-      text-align: center;
-      padding: 7rem 1.5rem;
-    }
-    .section--cta h2 {
-      font-size: clamp(2rem, 5vw, 3.25rem);
-      margin-bottom: 1rem;
-    }
-    .section--cta p {
-      font-size: 1.1rem;
-      max-width: 500px;
-      margin: 0 auto 1rem;
-    }
-    .section--cta p strong { color: var(--text); }
-    .section--cta em {
-      display: block;
-      margin-top: 2.5rem;
-      color: var(--text-dim);
-      font-size: .85rem;
-      font-style: normal;
-      letter-spacing: .08em;
-    }
-    .btn-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: .6rem;
-      background: var(--gold);
-      color: #0a0a0a;
-      font-family: 'Inter', sans-serif;
-      font-weight: 800;
-      font-size: 1.1rem;
-      padding: 1rem 2.5rem;
-      border-radius: 50px;
-      border: none;
-      cursor: pointer;
-      margin-top: 1.5rem;
-      transition: background .2s, transform .15s;
-      text-decoration: none;
-    }
-    .btn-cta:hover {
-      background: #e8bc68;
-      transform: translateY(-2px);
-    }
-
-    /* ─── FOOTER ─────────────────────────────────────────────── */
-    footer {
-      text-align: center;
-      padding: 2rem 1.5rem;
-      color: var(--text-dim);
-      font-size: .8rem;
-      border-top: 1px solid var(--border);
-    }
+    .error-state small { color: var(--su-fg-subtle); font-size: 13px; }
 
     /* ─── RESPONSIVE ─────────────────────────────────────────── */
+    /* --su-section-y ya baja a 64px en <=768px desde theme-light.css:
+       no se redeclara aqui. Este tramo intermedio existe porque con
+       --su-maxw 980px las columnas de outcomes/includes son las primeras
+       en quedarse sin ancho. */
+    @media (max-width: 1024px) {
+      #app .section--outcomes ul,
+      #app .section--includes ul { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+      #app .section--pain ul,
+      #app .section--transformation ul,
+      #app .section--method ul,
+      #app .section--format ul { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+      #app .pricing-card { padding: 32px; }
+    }
+    @media (max-width: 768px) {
+      .container { padding: 0 20px; }
+      #app .section--pain li,
+      #app .section--transformation li,
+      #app .section--method li,
+      #app .section--format li { padding: 24px; }
+      #app .for-who-col { padding: 28px; }
+    }
     @media (max-width: 640px) {
-      .section { padding: 4rem 1.25rem; }
-      .section--hero, .section--philosophy, .section--cta { padding: 4.5rem 1.25rem; }
-      .pricing-card { padding: 2rem 1.5rem; }
-      .section--outcomes ul,
-      .section--includes ul { grid-template-columns: 1fr; }
+      #app .section--pain ul,
+      #app .section--transformation ul,
+      #app .section--method ul,
+      #app .section--format ul,
+      #app .section--outcomes ul,
+      #app .section--includes ul { grid-template-columns: 1fr; }
+      #app .for-who-grid { grid-template-columns: 1fr; }
+      #app .pricing-card { padding: 28px 24px; }
+      /* Etiqueta larga: el pill de altura fija no cabe a 375px. */
+      #app .btn {
+        height: auto;
+        min-height: 48px;
+        padding: 14px 24px;
+        line-height: 1.35;
+        max-width: 100%;
+      }
     }
   </style>
 </head>
-<body>
+<body class="su-surface">
 
   <div id="app">
     <div class="loading">Cargando</div>
   </div>
 
   <footer id="footer" style="display:none">
-    <span id="footer-brand"></span>
+    <div class="container"><span id="footer-brand"></span></div>
   </footer>
 
   <!-- marked.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+  <!-- sprite de iconos del design system (define window.suIcon) -->
+  <script src="https://cdn.jsdelivr.net/gh/Suytex/suytex-design@v1.2.0/icons.js"></script>
 
   <script>
   // ─── MARKDOWN PARSER CONFIG ────────────────────────────────
   marked.setOptions({ breaks: true, gfm: true });
+
+  // ─── DOM READY ────────────────────────────────────────────
+  // icons.js inyecta el sprite en DOMContentLoaded. Esperarlo antes de
+  // pintar garantiza que los <use href="#su-*"> de enhanceIcons resuelvan
+  // incluso si el fetch responde desde cache antes de ese evento.
+  function domReady() {
+    return document.readyState === 'loading'
+      ? new Promise(r => document.addEventListener('DOMContentLoaded', r, { once: true }))
+      : Promise.resolve();
+  }
 
   // ─── PARSE FRONTMATTER ────────────────────────────────────
   function parseFrontmatter(text) {
@@ -724,18 +654,21 @@
           a.href = meta.whatsapp;
           a.target = '_blank';
           a.rel = 'noopener noreferrer';
-          a.classList.add('btn-cta');
+          a.classList.add('btn', 'btn-primary');
         }
       });
 
       // Add button if no link exists
-      if (!container.querySelector('.btn-cta') && meta.whatsapp) {
+      if (!container.querySelector('.btn') && meta.whatsapp) {
         const btn = document.createElement('a');
         btn.href      = meta.whatsapp;
         btn.target    = '_blank';
         btn.rel       = 'noopener noreferrer';
-        btn.className = 'btn-cta';
-        btn.textContent = '💬 Escríbeme "QUIERO" y reserva tu cupo';
+        btn.className = 'btn btn-primary';
+        // El icono queda como marcador: enhanceIcons() lo rellena al final.
+        btn.innerHTML =
+          '<span class="su-icon" data-su-icon="message-circle"></span>' +
+          '<span>Escríbeme "QUIERO" y reserva tu cupo</span>';
 
         // Find the direct child of container that contains (or is) an <em>,
         // so insertBefore gets a valid sibling — not a nested descendant.
@@ -755,18 +688,41 @@
   function enhanceHero(meta) {
     const container = document.querySelector('.section--hero .container');
     if (!container) return;
-    container.querySelectorAll('a').forEach(a => {
-      const href = a.getAttribute('href');
-      if (href === '#reserva' || href === '#') {
-        if (meta.whatsapp) {
-          a.href   = meta.whatsapp;
-          a.target = '_blank';
-          a.rel    = 'noopener noreferrer';
-        } else {
-          a.href = '#reserva';
+    try {
+      container.querySelectorAll('a').forEach(a => {
+        const href = a.getAttribute('href');
+        if (href === '#reserva' || href === '#') {
+          if (meta.whatsapp) {
+            a.href   = meta.whatsapp;
+            a.target = '_blank';
+            a.rel    = 'noopener noreferrer';
+          } else {
+            a.href = '#reserva';
+          }
         }
-      }
-    });
+        a.classList.add('btn', 'btn-primary');
+      });
+    } catch (e) {
+      console.warn('enhanceHero failed:', e);
+    }
+  }
+
+  // ─── POST-PROCESS: ICONOS ─────────────────────────────────
+  // Rellena los marcadores <span class="su-icon" data-su-icon="x"> que vienen
+  // de content.txt. Corre al final: los marcadores sobreviven a los movimientos
+  // de nodos de los otros enhance*, y asi tambien se cubre el boton que
+  // enhanceCTA crea desde cero.
+  function enhanceIcons() {
+    try {
+      if (typeof window.suIcon !== 'function') return;
+      document.querySelectorAll('[data-su-icon]').forEach(el => {
+        const name = el.getAttribute('data-su-icon');
+        if (!name || el.querySelector('svg')) return;
+        el.innerHTML = window.suIcon(name);
+      });
+    } catch (e) {
+      console.warn('enhanceIcons failed:', e);
+    }
   }
 
   // ─── MAIN ─────────────────────────────────────────────────
@@ -775,6 +731,8 @@
       const response = await fetch('./assets/content.txt');
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const text = await response.text();
+
+      await domReady();
 
       const { meta, body } = parseFrontmatter(text);
       const sections = parseSections(body);
@@ -794,20 +752,17 @@
       enhanceFAQ();
       enhanceCTA(meta);
       enhanceHero(meta);
+      enhanceIcons();
 
       document.getElementById('footer').style.display = '';
 
     } catch (err) {
       document.getElementById('app').innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
-                    min-height:100vh;padding:2rem;text-align:center;gap:1rem;">
-          <p style="color:#f87171;font-size:1.1rem;">Error al cargar el contenido.</p>
-          <p style="color:#888;font-size:.9rem;">
-            Este sitio requiere un servidor HTTP.<br>
-            Abre <code style="background:#1a1a1a;padding:.2em .4em;border-radius:4px">index.html</code>
-            desde un servidor local o GitHub Pages.
-          </p>
-          <small style="color:#555">${err.message}</small>
+        <div class="error-state">
+          <p class="error-title">Error al cargar el contenido.</p>
+          <p>Este sitio requiere un servidor HTTP. Abre
+            <code>index.html</code> desde un servidor local o GitHub Pages.</p>
+          <small>${err.message}</small>
         </div>`;
     }
   }
