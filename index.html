@@ -410,6 +410,10 @@
        no se redeclara aqui. Este tramo intermedio existe porque con
        --su-maxw 980px las columnas de outcomes/includes son las primeras
        en quedarse sin ancho. */
+    /* pain son 4 cards: con auto-fit quedaban 3 arriba y 1 huerfana abajo. */
+    @media (min-width: 1025px) {
+      #app .section--pain ul { grid-template-columns: repeat(2, 1fr); }
+    }
     @media (max-width: 1024px) {
       #app .section--outcomes ul,
       #app .section--includes ul { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
